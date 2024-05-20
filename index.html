@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+</head>
+
+<style>
+    *{
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    overflow: hidden;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: black;
+}
+</style>
+
+
+<body>
+    <script src = "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src = "https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.14.2/matter.min.js"></script>
+
+    <script>
+        const Engine = Matter.Engine;
+        const World = Matter.World;
+        const Bodies = Matter.Bodies;
+        const Body = Matter.Body;
+
+        let engine;
+        let words = [];
+        let ground , wallLeft, wallRight;
+        let wordsToDisplay = [
+                "Photoshop",
+                "Illustrator",
+                "Figma",
+                "Branding",
+                "Design",
+                "Logo",
+                "UI/UX",
+                "Web Design",
+                "Graphic Design",  
+                "Development",
+                "Frontend",
+                "HTML",
+                "CSS",
+                "JavaScript",
+                "React",
+                "WordPress",
+        ];
+
+        function setup (){
+            createCanvas(windowWidth, windowHeight - 60);
+            engine = Engine.create();
+            ground = Bodies.rectangle(width/2, height - 20, width, 10, 
+            {isStatic: true,
+            });
+            wallLeft = Bodies.rectangle(0, height/2, 10, height, {
+                isStatic: true,
+            });
+            wallRight = Bodies.rectangle(width, height/2, 10, height, {
+                isStatic: true,
+            }); 
+            World.add(engine.world, [ground, wallLeft, wallRight]);
+
+            for (let i = 0; i < wordsToDisplay.length; i++){
+                words.push(new Word(random(width), -200,  wordsToDisplay[i]));
+
+            }
+        }
+
+        function draw(){
+            background("#606060");
+            Engine.update(engine);
+            for (let word of words){
+                word.show();
+
+            }
+        }
+
+        class Word {
+            constructor(x, y, word){
+                this.body = Bodies.rectangle(x, y, word.length * 20, 40);
+                this.word = word;
+                World.add(engine.world, this.body);
+            }
+
+            show(){
+                let pos = this.body.position;
+                let angle = this.body.angle;
+
+                push();
+                translate(pos.x, pos.y);
+                rotate(angle);
+                rectMode(CENTER);
+                fill("#f0f0f000");
+                stroke("#ffffff");
+                strokeWeight(1);
+                rect(0, 0, this.word.length * 20 + 80, 100, 60);
+                noStroke();
+                textFont("Poppins");
+                fill("#ffffff");
+                textAlign(CENTER, CENTER);
+                textSize(20);
+                text(this.word.toUpperCase(), 0, 0);
+                pop();
+            }
+        }
+
+        function mouseMoved(){
+            for ( let word of words )
+            {
+                if ( dist(mouseX, mouseY, word.body.position.x, word.body.position.y) < 50)
+                {
+                    Body.applyForce(word.body, 
+                    {x: word.body.position.x, y: word.body.position.y},
+                    {x: random(-0.2, 0.2), y: random(-0.2,0.2)});
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
